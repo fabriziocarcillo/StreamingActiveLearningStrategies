@@ -1,13 +1,13 @@
 library(randomForest)
 library(rpart)
 library(PRROC)
-
+setwd('C:/Users/MLG/Dropbox/AAAPhd/AAAworkingarea/ActiveLearning')
 args2=1  #function for data creation
 args3="U" #Querying type
 top=95 #top
 q=5 #exploration budget
 m=1000 #SSSL budget
-files <- list.files(path = ".") # list of files, each file contains transactions for a day
+files <- list.files(path = "./syntdf/") # list of files, each file contains transactions for a day
 nDayTraining=7 # number of days for the sliding window
 nTree=10 #number of trees trained per day
 results=data.frame(day=NA,total=NA,auroc=NA,auprc=NA)
@@ -19,12 +19,12 @@ auroc=NA
 auprc=NA
 
 for (i in 1:length(files)){
-  histTrx=read.csv(files[i])
+  histTrx=read.csv(paste("./syntdf/",files[i],sep=""))
   print(files[i])
-  if(!is.null(bannedCards)){
+  if(!is.null(bannedCards) & length(is.null(which(histTrx$y %in% bannedCards)))==0){
     histTrx=histTrx[-which(histTrx$y %in% bannedCards),]
   }
-  df=histTrx[,-which(names(histTrx) %in% c("DATETIME","CARD_ID"))]
+  df=histTrx[,-which(names(histTrx) %in% c("CARD_ID"))]
   #fraud set
   dfFraud=df[which(df$y==1),]
   #genuine set
@@ -71,21 +71,21 @@ for (i in 1:length(files)){
             resT=sum(ranked[,"y"]=="1",na.rm = T)/(top)
           },
           R={
-            selectedCards=sample(unique(predTotOrd[,"CARD_ID"]),size = query)
+            selectedCards=sample(unique(predTotOrd[,"CARD_ID"]),size = q)
             queryds<-predTotOrd[which(predTotOrd[,"CARD_ID"] %in% selectedCards),]
-            resT=sum(rbind(ranked,queryds)[,"y"]=="1",na.rm = T)/(top+query)
+            resT=sum(rbind(ranked,queryds)[,"y"]=="1",na.rm = T)/(top+q)
           },
           U={ 
-            selectedCards=head(unique(predTotOrd[order(abs(predTot - 0.5),decreasing = F),"CARD_ID"]),query)
+            selectedCards=head(unique(predTotOrd[order(abs(predTot - 0.5),decreasing = F),"CARD_ID"]),q)
             queryds<-predTotOrd[which(predTotOrd[,"CARD_ID"] %in% selectedCards),]
-            resT=sum(rbind(ranked,queryds)[,"y"]=="1",na.rm = T)/(top+query)
+            resT=sum(rbind(ranked,queryds)[,"y"]=="1",na.rm = T)/(top+q)
           },
           M={ 
-            unc=round(query/2)
+            unc=round(q/2)
             selectedCards1=sample(unique(predTotOrd[,"CARD_ID"]),size = unc)
-            selectedCards2=head(unique(predTotOrd[order(abs(predTot - 0.5),decreasing = F),"CARD_ID"]),query-unc)
+            selectedCards2=head(unique(predTotOrd[order(abs(predTot - 0.5),decreasing = F),"CARD_ID"]),q-unc)
             queryds<-predTotOrd[which(predTotOrd[,"CARD_ID"] %in% unique(selectedCards1,selectedCards2)),]
-            resT=sum(rbind(ranked,queryds)[,"y"]=="1",na.rm = T)/(top+query)
+            resT=sum(rbind(ranked,queryds)[,"y"]=="1",na.rm = T)/(top+q)
           },
           SR={ 
             selectedCards=head(unique(predTotOrd[,"CARD_ID"]),m)
@@ -112,30 +112,30 @@ for (i in 1:length(files)){
             queryds2$y="0"
             resT=sum(ranked[,"y"]=="1",na.rm = T)/top
           },
-          SR-U={ 
-            selectedCards=head(unique(predTotOrd[order(abs(predTot - 0.5),decreasing = F),"CARD_ID"]),query)
+          SRU={ 
+            selectedCards=head(unique(predTotOrd[order(abs(predTot - 0.5),decreasing = F),"CARD_ID"]),q)
             queryds<-predTotOrd[which(predTotOrd[,"CARD_ID"] %in% selectedCards),]
-            resT=sum(rbind(ranked,queryds)[,"y"]=="1",na.rm = T)/(top+query)
+            resT=sum(rbind(ranked,queryds)[,"y"]=="1",na.rm = T)/(top+q)
             selectedCards=head(unique(predTotOrd[,"CARD_ID"]),m)
             queryds2<-predTotOrd[which(predTotOrd[,"CARD_ID"] %in% selectedCards),]
             queryds2$y="0"
             resT=sum(ranked[,"y"]=="1",na.rm = T)/top
           },
-          SR-R={ 
-            selectedCards=sample(unique(predTotOrd[,"CARD_ID"]),size = query)
+          SRR={ 
+            selectedCards=sample(unique(predTotOrd[,"CARD_ID"]),size = q)
             queryds<-predTotOrd[which(predTotOrd[,"CARD_ID"] %in% selectedCards),]
-            resT=sum(rbind(ranked,queryds)[,"y"]=="1",na.rm = T)/(top+query)
+            resT=sum(rbind(ranked,queryds)[,"y"]=="1",na.rm = T)/(top+q)
             selectedCards=head(unique(predTotOrd[,"CARD_ID"]),m)
             queryds2<-predTotOrd[which(predTotOrd[,"CARD_ID"] %in% selectedCards),]
             queryds2$y="0"
             resT=sum(ranked[,"y"]=="1",na.rm = T)/top
           },
-          SR-M={ 
-            unc=round(query/2)
+          SRM={ 
+            unc=round(q/2)
             selectedCards1=sample(unique(predTotOrd[,"CARD_ID"]),size = unc)
-            selectedCards2=head(unique(predTotOrd[order(abs(predTot - 0.5),decreasing = F),"CARD_ID"]),query-unc)
+            selectedCards2=head(unique(predTotOrd[order(abs(predTot - 0.5),decreasing = F),"CARD_ID"]),q-unc)
             queryds<-predTotOrd[which(predTotOrd[,"CARD_ID"] %in% unique(selectedCards1,selectedCards2)),]
-            resT=sum(rbind(ranked,queryds)[,"y"]=="1",na.rm = T)/(top+query)
+            resT=sum(rbind(ranked,queryds)[,"y"]=="1",na.rm = T)/(top+q)
             selectedCards=head(unique(predTotOrd[,"CARD_ID"]),m)
             queryds2<-predTotOrd[which(predTotOrd[,"CARD_ID"] %in% selectedCards),]
             queryds2$y="0"
@@ -144,9 +144,9 @@ for (i in 1:length(files)){
           QFU={
             selectedtr=predTotOrd[which(abs(predTot - 0.5)<0.05),"CARD_ID"]
             tabc=table(selectedtr)
-            selectedCards=names(tabc[head(order(tabc,decreasing = T),query)])
+            selectedCards=names(tabc[head(order(tabc,decreasing = T),q)])
             queryds<-predTotOrd[which(predTotOrd[,"CARD_ID"] %in% selectedCards),]
-            resT=sum(rbind(ranked,queryds)[,"y"]=="1",na.rm = T)/(top+query)
+            resT=sum(rbind(ranked,queryds)[,"y"]=="1",na.rm = T)/(top+q)
           }
           
   )}
