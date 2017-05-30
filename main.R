@@ -7,7 +7,7 @@ args3="U" #Querying type
 top=95 #top
 q=5 #exploration budget
 m=1000 #SSSL budget
-files <- list.files(path = ".") # ilst of files, each file contain the transactions for a day
+files <- list.files(path = ".") # list of files, each file contains transactions for a day
 nDayTraining=7 # number of days for the sliding window
 nTree=10 #number of trees trained per day
 results=data.frame(day=NA,total=NA,auroc=NA,auprc=NA)
