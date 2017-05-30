@@ -6,3 +6,5 @@ A full description and the comparison is presented in the paper "An Assessment o
 
 The code can be runned on the synthetic dataframes in the folder "./syntdf/".
 Such folder contains 30 files, which include some genuine and fraudulent transactions.
+
+You can run the code using your own dataset. The dependent feature should be called "y", while there should be as well a "CARD_ID" feature which refer to the credit card identificator.
