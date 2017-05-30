@@ -1,7 +1,7 @@
 library(randomForest)
 library(rpart)
 library(PRROC)
-setwd('C:/Users/MLG/Dropbox/AAAPhd/AAAworkingarea/ActiveLearning')
+
 args2=1  #function for data creation
 args3="U" #Querying type
 top=95 #top
