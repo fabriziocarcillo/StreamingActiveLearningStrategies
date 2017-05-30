@@ -24,7 +24,7 @@ for (i in 1:length(files)){
   if(!is.null(bannedCards)){
     histTrx=histTrx[-which(histTrx$y %in% bannedCards),]
   }
-  df=histTrx[,-which(names(histTrx) %in% c("TX_DATETIME","CARD_ID"))]
+  df=histTrx[,-which(names(histTrx) %in% c("DATETIME","CARD_ID"))]
   #fraud set
   dfFraud=df[which(df$y==1),]
   #genuine set
