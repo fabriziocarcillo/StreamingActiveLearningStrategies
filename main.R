@@ -2,8 +2,8 @@ library(randomForest)
 library(rpart)
 library(PRROC)
 
-args2=1  #function for data creation
-args3="U" #Querying type :N,R,U,M,SR,SU,SM,SE,SRU,SRR,SRM,QFU
+
+qType="U" #Querying type :N,R,U,M,SR,SU,SM,SE,SRU,SRR,SRM,QFU
 
 top=95 #top
 q=5 #exploration budget
@@ -67,7 +67,7 @@ for (i in 1:length(files)){
   queryds<-NULL
   queryds2<-NULL
   #Querying type
-  {switch(args3, 
+  {switch(qType, 
           N={ 
             resT=sum(ranked[,"y"]=="1",na.rm = T)/(top)
           },
