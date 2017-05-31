@@ -3,7 +3,8 @@ library(rpart)
 library(PRROC)
 
 args2=1  #function for data creation
-args3="U" #Querying type
+args3="U" #Querying type :N,R,U,M,SR,SU,SM,SE,SRU,SRR,SRM,QFU
+
 top=95 #top
 q=5 #exploration budget
 m=1000 #SSSL budget
